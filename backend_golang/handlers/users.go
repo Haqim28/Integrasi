@@ -57,7 +57,7 @@ func (h *handlerUser) GetUser(w http.ResponseWriter, r *http.Request) {
 	user.Image = os.Getenv("PATH_FILE") + user.Image
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponse(user)}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: user}
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -148,17 +148,22 @@ func (h *handlerUser) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	//uploadfile
 	dataContex := r.Context().Value("dataFile") // add this code
-	filename := dataContex.(string)             // add this code
+	filename := ""
 
+	if dataContex != nil {
+		filename = dataContex.(string)
+	} // add this code
+	iscart, _ := strconv.Atoi(r.FormValue("iscart"))
 	request := usersdto.UpdateUserRequest{
 		FullName: r.FormValue("fullname"),
 		Email:    r.FormValue("email"),
 		Password: r.FormValue("password"),
 		Phone:    r.FormValue("phone"),
 		Location: r.FormValue("location"),
-		Image:    filename,
-		Gender:   r.FormValue("gender"),
-		Role:     r.FormValue("role"),
+		// Image:    filename,
+		Gender: r.FormValue("gender"),
+		Role:   r.FormValue("role"),
+		IsCart: iscart,
 	}
 
 	//fmt.Println("ini userid", request.Email)
@@ -200,7 +205,7 @@ func (h *handlerUser) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		user.Location = request.Location
 	}
 
-	if request.Image != "" {
+	if filename != "" {
 		user.Image = filename
 	}
 
@@ -210,6 +215,10 @@ func (h *handlerUser) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	if request.Role != "" {
 		user.Role = request.Role
+	}
+
+	if request.IsCart != 0 {
+		user.IsCart = request.IsCart
 	}
 
 	data, err := h.UserRepository.UpdateUser(user)

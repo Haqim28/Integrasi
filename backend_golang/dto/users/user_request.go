@@ -10,6 +10,7 @@ type CreateUserRequest struct {
 	Image    string `json:"image" form:"image" `
 	Gender   string `json:"gender" form:"gender" validate:"required"`
 	Role     string `json:"role" form:"role" validate:"required"`
+	IsCart   string `json:"iscart" form:"iscart" `
 }
 
 type UpdateUserRequest struct {
@@ -21,4 +22,5 @@ type UpdateUserRequest struct {
 	Image    string `json:"image" form:"image" `
 	Gender   string `json:"gender" form:"gender" `
 	Role     string `json:"role" form:"role" `
+	IsCart   int    `json:"iscart" form:"iscart"`
 }

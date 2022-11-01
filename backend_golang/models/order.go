@@ -1,8 +1,20 @@
 package models
 
-type Cart struct {
-	ID         int       `json:"id" gorm:""`
-	Product_ID []int     `json:"-" form:"product_id" gorm:"-"`
-	Product    []Product `json:"product" gorm:"many2many:product_cart;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Qty        int       `json:"qty" form"qty"`
+type Order struct {
+	ID         int             `json:"id" gorm:"primary_key:auto_increment"`
+	Qty        int             `json:"qty" form:"qty"`
+	CartID     int             `json:"cart_id" form:"cart_id"`
+	Cart       CartsResponse   `json:"cart"`
+	Product_id int             `json:"product_id"`
+	Product    ProductResponse `json:"product" `
+}
+
+type OrderResponse struct {
+	ID          int           `json:"id"`
+	ProductID   int           `json:"product_id"`
+	NamaProduct string        `json:"nama_product"`
+	Qty         int           `json:"qty"`
+	CartID      int           `json:"cart_id"`
+	Cart        CartsResponse `json:"cart"`
+	// Product     []ProductResponse `json:"product" `
 }

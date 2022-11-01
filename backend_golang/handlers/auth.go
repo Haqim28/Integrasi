@@ -59,6 +59,7 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 		Gender:   request.Gender,
 		Phone:    request.Phone,
 		Role:     request.Role,
+		IsCart:   0,
 	}
 
 	data, err := h.AuthRepository.Register(user)
@@ -149,11 +150,12 @@ func (h *handlerAuth) CheckAuth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	CheckAuthResponse := authdto.CheckAuthResponse{
-		Id:    user.ID,
-		Name:  user.FullName,
-		Email: user.Email,
-		Role:  user.Role,
-		Phone: user.Phone,
+		Id:     user.ID,
+		Name:   user.FullName,
+		Email:  user.Email,
+		Role:   user.Role,
+		Phone:  user.Phone,
+		IsCart: user.IsCart,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

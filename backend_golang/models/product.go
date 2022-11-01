@@ -9,17 +9,13 @@ type Product struct {
 	// Qty    int                  `json:"qty" form:"qty"`
 	UserID int                  `json:"user_id" form:"user_id"`
 	User   UsersProfileResponse `json:"user"`
-	//OrderID int                  `json:"order_id" form:"order_id"`
-	//Order   []OrderResponse      `json:"order"`
 }
 
 type ProductResponse struct {
-	ID    int    `json:"id"`
-	Title string `json:"title"`
-	// Desc   string               `json:"desc"`
-	Price int    `json:"price"`
-	Image string `json:"image"`
-	// Qty    int                  `json:"qty"`
+	ID     int                  `json:"id"`
+	Title  string               `json:"title"`
+	Price  int                  `json:"price"`
+	Image  string               `json:"image"`
 	UserID int                  `json:"user_id"`
 	User   UsersProfileResponse `json:"user"`
 }

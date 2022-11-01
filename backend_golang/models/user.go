@@ -13,6 +13,7 @@ type User struct {
 	Image    string            `json:"image"`
 	Gender   string            `json:"gender" gorm:"type: varchar(255)"`
 	Role     string            `json:"role" gorm:"type: varchar(255)"`
+	IsCart   int               `json:"iscart"`
 	Product  []ProductResponse `json:"product" `
 }
 
