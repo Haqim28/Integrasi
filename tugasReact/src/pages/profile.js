@@ -20,9 +20,11 @@ function Profile() {
 
   const { data: profile } = useQuery("profileCache", async () => {
     const response = await API.get(`/user/${id}`);
+    console.log(response.data.data);
     return response.data.data;
   });
 
+ 
   return (
     <div className="container">
       <div className="d-md-flex justify-content-space-between">
@@ -47,7 +49,7 @@ function Profile() {
               <div className="mb-3">
                 <h5 className="subtitle-edit">FullName</h5>
                 <span className="isiProfile-edit">
-                  {profile?.fullname ? profile?.fullname : "-"}
+                  {profile?.name ? profile?.name : "-"}
                 </span>
               </div>
               <div className="mb-3">

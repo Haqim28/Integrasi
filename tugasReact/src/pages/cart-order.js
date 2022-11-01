@@ -10,7 +10,7 @@ import { UserContext } from '../context/userContext';
 import { useContext } from 'react';
 import { API } from "../config/api";
 import { useMutation } from "react-query";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function CartOrder() {
     
@@ -23,20 +23,21 @@ function CartOrder() {
     const { id } = useParams()
     const [state] = useContext(UserContext)
 
-    const [cart, setCart] = useState()
+    const [cart, setCart] = useState(null)
     const getData = async () => {
         try {
-            const response = await API.get("/transactions");
-            setCart(response.data.data)
+            const response = await API.get(`/cart/${state.user.iscart}`);
+            setCart(response.data.data.order)
+            console.log(response.data.data);
         } catch (error) {
             console.log(error);
         }
     }
 
     useEffect(() => {
-        if (state.user)
+        // if (state.user)
             getData()
-    }, [state])
+    }, [])
 
     const deleteById = useMutation(async (id) => {
         try {
@@ -68,9 +69,9 @@ function CartOrder() {
         }
 
     }
-    const filter = cart?.filter(p => p.buyer_id === id)
-    const sum = cart?.map(p => p.product.price * p.qty).reduce((a, b) => a += b, 0)
-    const qty = cart?.map(p => p.qty).reduce((a, b) => a += b, 0)
+    // const filter = cart?.filter(p => p.buyer_id === id)
+    // const sum = cart?.map(p => p.product.price * p.qty).reduce((a, b) => a += b, 0)
+    // const qty = cart?.map(p => p.qty).reduce((a, b) => a += b, 0)
 
 
    
@@ -84,13 +85,22 @@ function CartOrder() {
         return (setCounter(counter - 1));
     }
 
-  
+    //============================================================
+
+    const navigate = useNavigate()
+    const handleBack = () => {
+        navigate(`/resto/${cart[0]?.product.user.id}`);
+      };
+
     return (
         <div className="container mt-5 ">
-            
-            <div className="title-order">
-                Geprek Bensu
+          
+
+            <div className="title-order" onClick={handleBack}>
+                hallo
+                {/* {cart[0]?.product.user.name} */}
             </div>
+         
             <div className="delivery-title">
                 Delivery Location
             </div>
@@ -121,21 +131,21 @@ function CartOrder() {
                         
                         <hr />
                     <div data-spy = "scroll">
-                        {/* {cart?.map((item) => ( */}
-
-                   
+                        
+                        {cart?.map((item) => ( 
+ 
                         <div className="d-flex riview-ukuran" >
                             <div >
                                 <div className="d-md-flex">
                                     <div className="justify-content-start">
-                                        <img src={Geprek} alt=''></img>
+                                        <img src={item?.product.image ? "http://localhost:5000/uploads/"+ item?.product.image :Geprek} alt=''></img>
                                     </div>
                                     <div className="justify-content-end ml-3">
                                         <div className="mb-3">
-                                            <h5 className="">Paket Geprek</h5>
+                                            <h5 className="">{item?.product.title}</h5>
                                             <div className="mt-5 p-3 ">
                                                 <img src={Minus} alt="" className="mr-3" onClick={Less} style={{cursor:'pointer'}}></img>
-                                                <label className="mr-3">{counter}</label>
+                                                <label className="mr-3">{item?.qty}</label>
                                                 <img src={Plus} alt="" onClick={Add } style={{cursor:'pointer'}}></img>
                                             </div>
                                         </div>
@@ -144,17 +154,22 @@ function CartOrder() {
                                </div>
                             <div className="ml-auto">
                                 <div>
-                                    Rp 15.000
+                                    Rp {item?.product.price}
                                 </div>
                             <img src={Sampah} alt="" className="mt-5"></img>
                             </div>
                         </div>
+                        ))}
                         <hr />
+                  
                         
                         
+
+                      
                         
                         
                         </div>
+                      
                     </div>
                     
                     <div className="col-lg-4 col-md-12 text-right">
@@ -184,6 +199,7 @@ function CartOrder() {
                 </div>
                 
             </div>
+       
         </div>
              
        

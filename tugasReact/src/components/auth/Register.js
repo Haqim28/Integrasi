@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
@@ -6,6 +6,7 @@ import imgRegister from '../assets/Register.png';
 import { Alert } from "react-bootstrap";
 import { useMutation } from 'react-query';   
 import { API } from '../../config/api';
+import {UserContext} from '../../context/userContext'
 
 function Register() {
   const [show, setShow] = useState(false);
@@ -21,7 +22,7 @@ function Register() {
     password: '',
     gender : '',
     phone : '',
-    role : ''
+    role : '',
   });
 
   const { name, email, password, gender, phone, asUser } = form;
@@ -33,11 +34,40 @@ function Register() {
     });
   };
 
+  //======================
+  const [cart] = useState({
+    qty : 1,
+    user_id : 0
+  })
+
+  const [user] = useState( {
+    isCart : cart.user_id
+  })
+
+  const [state] = useContext(UserContext)
   const handleSubmit = useMutation(async (e) => {
     try {
       e.preventDefault();
 
+      // daftar akun
       const response = await API.post("/register", form);
+      console.log("ini id user",response.data.data);
+
+      cart.user_id = response.data.data.id
+      console.log("ini cart user", cart.user_id);
+
+      // buat cart
+      const responseCart = await API.post('/cart',cart)
+      console.log("ini cart respon",responseCart.data.data.id);
+
+
+      // Store data with FormData as object
+      const formData = new FormData();
+      formData.set("iscart", responseCart.data.data.id )
+
+      // Insert product data
+      const responseUpdate = await API.patch("/user/" + cart.user_id, formData);
+      console.log(responseUpdate.data.data);
 
       const alert = (
         <Alert variant="success">Berhasil mendaftarkan akun!</Alert>

@@ -88,7 +88,7 @@ function App() {
       <div className="App-back">
         {isLoading ? (
           <></>
-        ) : (
+        ) : (   
           <>
             <Navbar />
             <Routes>

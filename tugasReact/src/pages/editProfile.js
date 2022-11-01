@@ -12,6 +12,8 @@ function EditProfile() {
     let navigate = useNavigate();
     const [state] = useContext(UserContext)
     const id = state.user.id
+    const [preview, setPreview] = useState(null);
+
 
 
     const [form, setForm] = useState({
@@ -32,7 +34,7 @@ function EditProfile() {
         if (profile) {
             setForm({
             ...form,
-            fullname: profile.fullname,
+           fullname: profile.fullname,
             email: profile.email,
             phone: profile.phone,
             location: profile.location,
@@ -45,9 +47,16 @@ function EditProfile() {
         setForm({
           ...form,
           [e.target.name]:
-            e.target.type === "file" ? e.target.files : e.target.value,
+            e.target.type === "file" ? e.target.files[0] : e.target.value,
         });
+    
+
+    if (e.target.type === "file") {
+        const url = URL.createObjectURL(e.target.files[0]);
+        setPreview(url);
+      }
     };
+    
 
     const handleSubmit = async (e) => {
         try {
@@ -55,10 +64,10 @@ function EditProfile() {
     
           // Store data with FormData as object
           const formData = new FormData();
-          if (form.image) {
-            formData.set("image", form?.image[0], form?.image[0]?.name);
+          if (preview) {
+            formData.set("image", form?.image, form?.image.name);
           }
-          formData.set("fullname", form.fullname);
+          formData.set("name", form.fullname);
           formData.set("email", form.email);
           formData.set("phone", form.phone);
           formData.set("location", form.location);
@@ -85,7 +94,7 @@ function EditProfile() {
                             type="text" 
                             name="fullname"
                             onChange={handleChange}
-                            Value = {form?.fullname}
+                            Value = {form?.name}
                             placeholder="FullName" />
                         </Form.Group>
                     </div>

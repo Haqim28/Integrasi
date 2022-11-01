@@ -12,34 +12,52 @@ import { useParams } from 'react-router-dom';
 
 function MenuRestaurant(props) { 
       const {id} = useParams()
-      const { data: menu ,isLoading } = useQuery("productsCache", async () => {
+      const { data: menu  } = useQuery("productsCache", async () => {
         const response = await API.get(`/products/${id}`);
-        console.log(response.data.data);
+        // console.log(response.data.data);
         return response.data.data;
       });
 
+      // for partner
       const { data: user  } = useQuery("usersCache", async () => {
         const response = await API.get(`/user/${id}`);
-        console.log(response.data.data);
+        // console.log(response.data.data);
         return response.data.data;
       });
 
-        //==========================================
-        const [state] = useContext(UserContext)
-      function order(id,user,title) {
-        console.log("ini id product",id);
-        console.log("ini id resto",user)
-        console.log("ini id user",state.user.id);
-        console.log("ini title",title);
-      }
+      // useEffect(() => {
+      //   console.log(user);
+      // }, []);
 
+        //==========================================
+        const [state,dispatch] = useContext(UserContext)
+
+        
+
+      // const [createCart , setCreateCart] = useState(false)
+
+      const [order,setOrder] = useState({
+        qty : 1,
+        cart_id : 0,
+        product_id : 0,
+     })
+
+      const handleSubmit = useMutation(async (e) => {
+        try{  
+            e.preventDefault() 
+            const responseOrder = await API.post('/order',order)
+            console.log(responseOrder);
+        }catch(err){
+          console.log(err);
+        }
+      })
     return (
      <div className="ml-5">
-      {isLoading? 
+      {/* {isLoading? 
       <></>  
-     : <>  
+     : <>   */}
         <div className="ml-5">
-        <h2 className="text-left ml-3 mb-4 font-weight-bold mt-5">{user?.fullname} , Menus</h2>
+        <h2 className="text-left ml-3 mb-4 font-weight-bold mt-5">{user?.name} , Menus</h2>
             <div className="row justify-content-md-start">
              {menu?.map((restaurantMenu) => ( 
                   <Card style={{ width: '18rem' }} className="ml-3 mt-2 mb-2  p-3" >
@@ -47,11 +65,14 @@ function MenuRestaurant(props) {
                           <img 
                           width="100%"
                           height="200"
-                          src={restaurantMenu.image ? "http://localhost:5000/uploads/"+ restaurantMenu.image : Geprek} alt="" className=""></img>
+                          src={restaurantMenu.image ? "http://localhost:5000/uploads/"+ restaurantMenu?.image : Geprek} alt="" className=""></img>
                         <h5 className="text-left  pt-2 ">{restaurantMenu.title} </h5>
                         <p className="text-left " >{restaurantMenu.price}</p>
                         <button variant="warning" class="btn btn-warning btn-md mt-5 btn-block"
-                        onClick={() => order(restaurantMenu?.id,user?.id,restaurantMenu.title)}
+                        onClick={(e) => {
+                          setOrder({qty : + 1 , cart_id  : state.user.iscart , product_id:restaurantMenu?.id})
+                          handleSubmit.mutate(e)
+                        } }
                         >Order</button>
                       </div>
                   </Card>
@@ -61,7 +82,7 @@ function MenuRestaurant(props) {
             </div>
         </div>
           
-        </>}   
+        {/* </>}    */}
      </div>
     );
   }
