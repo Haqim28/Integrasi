@@ -9,36 +9,46 @@ import selectMaps from "../components/assets/selectMap.png"
 import { UserContext } from '../context/userContext';
 import { useContext } from 'react';
 import { API } from "../config/api";
-import { useMutation } from "react-query";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-function CartOrder() {
-    
-    // ===========================
+function getSubTotal (data){
+    let Subtotal = 0
+            for(let i = 0; i < data.length; i++){ Subtotal   += data[i].price_order}
+    return (Subtotal)
+}
+function getQtyTotal (data){
+    let Subtotal = 0
+            for(let i = 0; i < data.length; i++){ Subtotal   += data[i].qty}
+    return (Subtotal)
+}
+function CartOrder() {    
     const [state] = useContext(UserContext)
     const [cart, setCart] = useState(null)
+    const [subTotal , setsubTotal] = useState(null)
+    const [qtyTotal,setqtyTotal] = useState(null)
     const [isLoading,setisLoading] = useState(true)
+
     const getData = async () => {
         try {
             const response = await API.get(`/cart/${state.user.iscart}`);
             setCart(response.data.data.order)
             console.log(response.data.data);
+            let dataOrder = response.data.data.order
+            setsubTotal(getSubTotal(dataOrder))
+            setqtyTotal(getQtyTotal(dataOrder))
             setisLoading(false)
         } catch (error) {
             console.log(error);
             setisLoading(false)
 
         }
-    }
-    
-    
+    }  
     useEffect(() => {
         if(isLoading){
             getData()
         }
     }, [isLoading])
 
-   
     const handleDelete = async (id) => {
         try {
           await API.delete(`/order/${id}`);
@@ -90,19 +100,36 @@ function CartOrder() {
     const handleBack = () => {
         navigate(`/resto/${cart[0]?.product.user.id}`);
       };
+//=====================================Handle Transaksi==============
+        const handleTransaction = async (cartid,total) => {
+            try{
+      
+        //insert for handleTransaction    
+            let transaction = {
+                cart_id : cartid,
+                user_id : state.user.id,
+                subtotal : total
+               } 
+            const response = await API.post(`/transaction`,transaction);
+            console.log(response.data.data);
 
+          //insert for update status in cart Table
+        //   await API.patch(`/cart/${state.user.iscart}`);
+          //insert for change new cart_id if status in cart_id === Finished
+  
+            }catch(error){
+                console.log(error);
+            }
+        }
+
+//====================================================================
     return (
         
         <div className="container mt-5 ">
-            
-            {isLoading ?
-                 <></>
-                 :
-                <>
-
+            {isLoading ? <></>: <>
             <div className="title-order" onClick={handleBack}>
                 
-                {/* {cart[0]?.product.user.name} */}
+                {cart[0]?.product.user.name}
             </div>
          
             <div className="delivery-title">
@@ -114,7 +141,7 @@ function CartOrder() {
 
                     <div class="col-md-auto col-lg-3 text-right  text-white" >
                         <div className="btn-delivery text-center " style={{cursor:'pointer'}} data-toggle="modal" data-target=".bd-example-modal-xl">
-                            <div className='pt-2'>Select On Map <img src={selectMaps}></img></div>
+                            <div className='pt-2'>Select On Map <img src={selectMaps} alt="maps"></img></div>
                         </div>  
                         <div className="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
                                 <div className="  modal-dialog  modal-xl" >
@@ -163,14 +190,7 @@ function CartOrder() {
                             </div>
                         </div>
                         ))}
-                        <hr />
-                  
-                        
-                        
-
-                      
-                        
-                        
+                        <hr />  
                         </div>
                       
                     </div>
@@ -180,11 +200,11 @@ function CartOrder() {
                             <div className="total-ukuran text-right">
                                 <div className="d-flex total-ukur  p-3 text-right">
                                     <div>Subtotal</div>
-                                    <div className="ml-auto">Rp </div>
+                                    <div className="ml-auto">Rp {subTotal} </div>
                                 </div>
                                 <div className="d-flex total-ukur  p-3">
                                     <div>Qty</div>
-                                    <div className="ml-auto">2</div>
+                                    <div className="ml-auto">{qtyTotal}</div>
                                 </div>
                                 <div className="d-flex total-ukur  p-3">
                                     <div>Ongkir</div>
@@ -193,8 +213,9 @@ function CartOrder() {
                             </div>
                         <hr />
                         <div className="text-right">
-                            <button className="btn-order text-white" data-toggle="modal" data-target=".bd-example-modal-xl">
-                                see How far ?
+                            <button className="btn-order text-white" data-toggle="modal"  onClick={() => handleTransaction(cart[0].cart_id,subTotal+10000)}>
+                                {/* data-target=".bd-example-modal-xl"> */}
+                                Order
                             </button>
                         </div>
                         
@@ -202,7 +223,8 @@ function CartOrder() {
                 </div>
                 
             </div>
-            </>}
+            
+            </> }
         </div>
              
        

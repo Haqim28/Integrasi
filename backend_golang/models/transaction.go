@@ -7,5 +7,5 @@ type Transaction struct {
 	Status   string               `json:"status"`
 	Subtotal int                  `json:"subtotal"`
 	CartID   int                  `json:"cart_id" `
-	Cart     CartsResponse        `json:"cart"`
+	Cart     Cart                 `json:"cart"`
 }
