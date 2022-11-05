@@ -14,77 +14,76 @@ import { useNavigate, useParams } from "react-router-dom";
 
 function CartOrder() {
     
-    const [dataUser, dispatch] = useContext(UserContext);
-    const [counter, setCounter] = useState(0);
-    const [subtotal,setSubTotal] = useState(0);
-    let data = 0
     // ===========================
-
-    const { id } = useParams()
     const [state] = useContext(UserContext)
-
     const [cart, setCart] = useState(null)
+    const [isLoading,setisLoading] = useState(true)
     const getData = async () => {
         try {
             const response = await API.get(`/cart/${state.user.iscart}`);
             setCart(response.data.data.order)
             console.log(response.data.data);
+            setisLoading(false)
         } catch (error) {
             console.log(error);
+            setisLoading(false)
+
         }
     }
-
+    
+    
     useEffect(() => {
-        // if (state.user)
+        if(isLoading){
             getData()
-    }, [])
-
-    const deleteById = useMutation(async (id) => {
-        try {
-            await API.delete(`/transactions/${id}`);
-            getData()
-        } catch (error) {
-            console.log(error);
         }
-    });
-
-    const HandleAdd = async (qty, id) => {
-        try {
-            await API.patch(`/transactions/${id}`, { qty: qty })
-            getData()
-        } catch (error) {
-            console.log(error);
-        }
-    }
-    const HandleLess = async (qty, id) => {
-        try {
-            if (qty === 0) {
-                deleteById.mutate(id)
-            } else {
-                await API.patch(`/transactions/${id}`, { qty: qty })
-                getData()
-            }
-        } catch (error) {
-            console.log(error);
-        }
-
-    }
-    // const filter = cart?.filter(p => p.buyer_id === id)
-    // const sum = cart?.map(p => p.product.price * p.qty).reduce((a, b) => a += b, 0)
-    // const qty = cart?.map(p => p.qty).reduce((a, b) => a += b, 0)
-
+    }, [isLoading])
 
    
+    const handleDelete = async (id) => {
+        try {
+          await API.delete(`/order/${id}`);
+          setisLoading(true)
+        console.log("ini id dari yang du ketik",id);
+        } catch (error) {
+          setisLoading(true)
 
-    function Add() {
-        data = data + 1;
-        return (setCounter(counter + 1) , setSubTotal((counter+1)*15000), console.log(data+1) );
+          console.log(error);
+        }
+      };
+
+    const handleAdd = async (orderid,price,jumlah) => {
+        try{
+           let newqty = jumlah + 1
+           let newTotal = newqty * price
+           let updateOrder = {
+            qty : newqty ,
+            price_order : newTotal
+           } 
+           await API.patch(`/order/${orderid}`, updateOrder);
+           getData()
+        }catch (error){
+            console.log(error);
+        }
     }
+    const handleMinus = async (orderid,price_order,jumlah,price_product) => {
+        try{
+            if(jumlah === 1){
+                await API.delete(`/order/${orderid}`);
+            }else{
+            let minqty = jumlah - 1
+            let minTotal = price_order - price_product
+            let updateOrder = {
+                qty : minqty ,
+                price_order : minTotal
+               } 
+           await API.patch(`/order/${orderid}`, updateOrder);
+            }
+           getData()
 
-    function Less() {
-        return (setCounter(counter - 1));
+        }catch(error){
+
+        }
     }
-
     //============================================================
 
     const navigate = useNavigate()
@@ -93,11 +92,16 @@ function CartOrder() {
       };
 
     return (
+        
         <div className="container mt-5 ">
-          
+            
+            {isLoading ?
+                 <></>
+                 :
+                <>
 
             <div className="title-order" onClick={handleBack}>
-                hallo
+                
                 {/* {cart[0]?.product.user.name} */}
             </div>
          
@@ -128,25 +132,24 @@ function CartOrder() {
             <div>
                 <div className="row ml-2 ">
                     <div className="col-lg-8 col-md-12">
-                        
                         <hr />
                     <div data-spy = "scroll">
                         
                         {cart?.map((item) => ( 
  
-                        <div className="d-flex riview-ukuran" >
+                        <div className="d-flex riview-ukuran mb-5" >
                             <div >
                                 <div className="d-md-flex">
-                                    <div className="justify-content-start">
-                                        <img src={item?.product.image ? "http://localhost:5000/uploads/"+ item?.product.image :Geprek} alt=''></img>
+                                    <div className="justify-content-start ">
+                                        <img src={item?.product.image ? "http://localhost:5000/uploads/"+ item?.product.image :Geprek} alt='' className="mb-2"></img>
                                     </div>
                                     <div className="justify-content-end ml-3">
                                         <div className="mb-3">
                                             <h5 className="">{item?.product.title}</h5>
                                             <div className="mt-5 p-3 ">
-                                                <img src={Minus} alt="" className="mr-3" onClick={Less} style={{cursor:'pointer'}}></img>
+                                                <img onClick={() => handleMinus(item.id,item.price_order,item.qty,item.product.price)} src={Minus} alt="" className="mr-3"  style={{cursor:'pointer'}}></img>
                                                 <label className="mr-3">{item?.qty}</label>
-                                                <img src={Plus} alt="" onClick={Add } style={{cursor:'pointer'}}></img>
+                                                <img onClick={() => handleAdd(item.id,item.price_order,item.qty)} src={Plus} alt=""  style={{cursor:'pointer'}}></img>
                                             </div>
                                         </div>
                                     </div>
@@ -154,9 +157,9 @@ function CartOrder() {
                                </div>
                             <div className="ml-auto">
                                 <div>
-                                    Rp {item?.product.price}
+                                    Rp {item?.price_order}
                                 </div>
-                            <img src={Sampah} alt="" className="mt-5"></img>
+                            <img src={Sampah} alt="" className="mt-5" onClick={() => handleDelete(item?.id)}></img>
                             </div>
                         </div>
                         ))}
@@ -177,7 +180,7 @@ function CartOrder() {
                             <div className="total-ukuran text-right">
                                 <div className="d-flex total-ukur  p-3 text-right">
                                     <div>Subtotal</div>
-                                    <div className="ml-auto">Rp {subtotal}</div>
+                                    <div className="ml-auto">Rp </div>
                                 </div>
                                 <div className="d-flex total-ukur  p-3">
                                     <div>Qty</div>
@@ -199,7 +202,7 @@ function CartOrder() {
                 </div>
                 
             </div>
-       
+            </>}
         </div>
              
        

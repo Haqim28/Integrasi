@@ -36,21 +36,23 @@ function MenuRestaurant(props) {
 
       // const [createCart , setCreateCart] = useState(false)
 
-      const [order,setOrder] = useState({
-        qty : 1,
-        cart_id : 0,
-        product_id : 0,
-     })
-
-      const handleSubmit = useMutation(async (e) => {
-        try{  
-            e.preventDefault() 
-            const responseOrder = await API.post('/order',order)
-            console.log(responseOrder);
-        }catch(err){
-          console.log(err);
-        }
-      })
+      
+     const handleSubmit = async (cart_id,product_id,price_order) => {
+      try{
+        
+         let order = {
+          qty : +  1 ,
+          cart_id : cart_id,
+          product_id : product_id,
+          price_order : price_order
+         } 
+         const responseOrder = await API.post('/order',order)
+         console.log(responseOrder);
+      }catch (error){
+          console.log(error);
+      }
+  }
+    
     return (
      <div className="ml-5">
       {/* {isLoading? 
@@ -69,10 +71,7 @@ function MenuRestaurant(props) {
                         <h5 className="text-left  pt-2 ">{restaurantMenu.title} </h5>
                         <p className="text-left " >{restaurantMenu.price}</p>
                         <button variant="warning" class="btn btn-warning btn-md mt-5 btn-block"
-                        onClick={(e) => {
-                          setOrder({qty : + 1 , cart_id  : state.user.iscart , product_id:restaurantMenu?.id})
-                          handleSubmit.mutate(e)
-                        } }
+                        onClick={() => handleSubmit(state.user.iscart,restaurantMenu?.id,restaurantMenu.price)}
                         >Order</button>
                       </div>
                   </Card>
