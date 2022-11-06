@@ -77,7 +77,7 @@ useEffect(() => {
               <div className="mb-3">
                 <h5 className="subtitle-edit">FullName</h5>
                 <span className="isiProfile-edit">
-                  {profile?.name ? profile?.name : "-"}
+                  {profile?.fullname ? profile?.fullname : "-"}
                 </span>
               </div>
               <div className="mb-3">

@@ -139,6 +139,7 @@ function CartOrder() {
       const responseUpdate = await API.patch("/user/" + cart.user_id, formData);
       console.log(responseUpdate.data.data);
 
+      navigate(`/profile`);
 
 
 

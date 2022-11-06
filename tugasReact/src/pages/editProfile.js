@@ -34,7 +34,7 @@ function EditProfile() {
         if (profile) {
             setForm({
             ...form,
-           fullname: profile.fullname,
+            fullname: profile.fullname,
             email: profile.email,
             phone: profile.phone,
             location: profile.location,
@@ -67,7 +67,7 @@ function EditProfile() {
           if (preview) {
             formData.set("image", form?.image, form?.image.name);
           }
-          formData.set("name", form.fullname);
+          formData.set("fullname", form.fullname);
           formData.set("email", form.email);
           formData.set("phone", form.phone);
           formData.set("location", form.location);
@@ -94,7 +94,7 @@ function EditProfile() {
                             type="text" 
                             name="fullname"
                             onChange={handleChange}
-                            Value = {form?.name}
+                            Value = {form?.fullname}
                             placeholder="FullName" />
                         </Form.Group>
                     </div>

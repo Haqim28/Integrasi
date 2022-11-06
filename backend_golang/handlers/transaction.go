@@ -96,7 +96,7 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	status := "pending"
+	status := "Finished"
 
 	transaction := models.Transaction{
 		Status:   status,
