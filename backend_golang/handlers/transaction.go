@@ -21,6 +21,42 @@ func HandlerTransaction(TransactionRepository repositories.TransactionRepository
 	return &handlerTransaction{TransactionRepository}
 }
 
+func (h *handlerTransaction) FindTransaction(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
+	transaction, err := h.TransactionRepository.FindTransaction(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	response := dto.SuccessResult{Code: http.StatusOK, Data: transaction}
+	json.NewEncoder(w).Encode(response)
+}
+
+func (h *handlerTransaction) FindTransactionBySeller(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
+	transaction, err := h.TransactionRepository.FindTransactionBySeller(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	response := dto.SuccessResult{Code: http.StatusOK, Data: transaction}
+	json.NewEncoder(w).Encode(response)
+}
+
 func (h *handlerTransaction) GetTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -65,7 +101,8 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 	transaction := models.Transaction{
 		Status:   status,
 		CartID:   request.CartID,
-		UsersID:  request.UserID,
+		BuyerID:  request.BuyerID,
+		SellerID: request.SellerID,
 		Subtotal: request.SubTotal,
 	}
 

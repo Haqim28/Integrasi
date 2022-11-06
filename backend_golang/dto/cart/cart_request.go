@@ -7,7 +7,8 @@ type CreateCartRequest struct {
 }
 
 type UpdateCartRequest struct {
-	Qty      int `json:"qty" form:"qty"`
-	UserID   int `json:"user_id" form:"user_id"`
-	SubTotal int `json;"subtotal" form;"subtotal"`
+	Qty      int    `json:"qty" form:"qty"`
+	UserID   int    `json:"user_id" form:"user_id"`
+	SubTotal int    `json:"subtotal" form:"subtotal"`
+	Status   string `json:"status" form:"status"`
 }

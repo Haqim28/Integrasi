@@ -49,14 +49,14 @@ function Register() {
     try {
       e.preventDefault();
 
-      // daftar akun
+      // Create account
       const response = await API.post("/register", form);
       console.log("ini id user",response.data.data);
 
       cart.user_id = response.data.data.id
       console.log("ini cart user", cart.user_id);
 
-      // buat cart
+      // create  cart
       const responseCart = await API.post('/cart',cart)
       console.log("ini cart respon",responseCart.data.data.id);
 

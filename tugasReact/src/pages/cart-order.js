@@ -63,6 +63,7 @@ function CartOrder() {
 
     const handleAdd = async (orderid,price,jumlah) => {
         try{
+            console.log(price);
            let newqty = jumlah + 1
            let newTotal = newqty * price
            let updateOrder = {
@@ -101,22 +102,51 @@ function CartOrder() {
         navigate(`/resto/${cart[0]?.product.user.id}`);
       };
 //=====================================Handle Transaksi==============
-        const handleTransaction = async (cartid,total) => {
+    const handleTransaction = async (cartid,total,selllerid) => {
             try{
-      
+                    console.log(cartid,total,selllerid);
         //insert for handleTransaction    
             let transaction = {
                 cart_id : cartid,
-                user_id : state.user.id,
+                buyer_id : state.user.id,
+                seller_id : selllerid,
                 subtotal : total
                } 
             const response = await API.post(`/transaction`,transaction);
             console.log(response.data.data);
 
           //insert for update status in cart Table
-        //   await API.patch(`/cart/${state.user.iscart}`);
+          let updateStatus = {
+            status : "Finished",
+        }
+        console.log(updateStatus);
+          const responseUpdateStatus = await API.patch(`/cart/${state.user.iscart}`,updateStatus);
+          console.log(responseUpdateStatus);
           //insert for change new cart_id if status in cart_id === Finished
-  
+          let cart = {
+            qty : 1,
+            user_id : state.user.id
+          }
+          // create  cart
+      const responseCart = await API.post('/cart',cart)
+
+      console.log("ini cart respon",responseCart.data.data.id);
+        // Store data with FormData as object
+        const formData = new FormData();
+        formData.set("iscart", responseCart.data.data.id )
+
+      // Insert product data
+      const responseUpdate = await API.patch("/user/" + cart.user_id, formData);
+      console.log(responseUpdate.data.data);
+
+
+
+
+
+
+
+
+
             }catch(error){
                 console.log(error);
             }
@@ -176,7 +206,7 @@ function CartOrder() {
                                             <div className="mt-5 p-3 ">
                                                 <img onClick={() => handleMinus(item.id,item.price_order,item.qty,item.product.price)} src={Minus} alt="" className="mr-3"  style={{cursor:'pointer'}}></img>
                                                 <label className="mr-3">{item?.qty}</label>
-                                                <img onClick={() => handleAdd(item.id,item.price_order,item.qty)} src={Plus} alt=""  style={{cursor:'pointer'}}></img>
+                                                <img onClick={() => handleAdd(item.id,item.product.price,item.qty)} src={Plus} alt=""  style={{cursor:'pointer'}}></img>
                                             </div>
                                         </div>
                                     </div>
@@ -213,7 +243,7 @@ function CartOrder() {
                             </div>
                         <hr />
                         <div className="text-right">
-                            <button className="btn-order text-white" data-toggle="modal"  onClick={() => handleTransaction(cart[0].cart_id,subTotal+10000)}>
+                            <button className="btn-order text-white" data-toggle="modal"  onClick={() => handleTransaction(cart[0].cart_id,subTotal+10000,cart[0].product.user.id)}>
                                 {/* data-target=".bd-example-modal-xl"> */}
                                 Order
                             </button>

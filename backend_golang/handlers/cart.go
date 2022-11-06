@@ -111,6 +111,9 @@ func (h *handlerCart) UpdateCart(w http.ResponseWriter, r *http.Request) {
 	if request.UserID != 0 {
 		cart.UserID = request.UserID
 	}
+	if request.Status != "" {
+		cart.Status = request.Status
+	}
 
 	data, err := h.CartRepository.UpdateCart(cart, id)
 	if err != nil {

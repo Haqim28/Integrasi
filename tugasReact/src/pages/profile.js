@@ -12,6 +12,7 @@ import { useQuery } from "react-query";
 function Profile() {
   const navigate = useNavigate();
   const [state] = useContext(UserContext);
+  const [isLoading,setisLoading] = useState(true)
 //   const [profile, setProfile] = useState(null);
   const id = state.user.id;
   const handleEditProfile = () => {
@@ -24,9 +25,36 @@ function Profile() {
     return response.data.data;
   });
 
- 
+  // const { data: transaction } = useQuery("transacionCache", async () => {
+  //   const response = await API.get(`/transactions/${state.user.id}`);
+  //   console.log(response.data.data);
+  //   return response.data.data;
+  // });
+  const [transaction, setTransaction] = useState(null)
+
+  const getTransaction = async () => {
+    try {
+        const response = await API.get(`/transactions/${state.user.id}`);
+        setTransaction(response.data.data)
+        console.log(response.data.data);
+        console.log("ini data transaction");
+        console.log(transaction);
+        setisLoading(false)
+    } catch (error) {
+        console.log(error);
+        setisLoading(false)
+    }
+
+} 
+useEffect(() => {
+  if(isLoading){
+      getTransaction()
+  }
+}, [isLoading])
   return (
+
     <div className="container">
+      {isLoading ? <> </> : <>
       <div className="d-md-flex justify-content-space-between">
         <div className="justify-content-start ml-5 mr-5 mt-5 ">
           <div className="mb-3 title-edit">My Profile</div>
@@ -67,16 +95,17 @@ function Profile() {
             </div>
           </div>
         </div>
+
         <div className=" mt-5 ml-auto">
           <div className="title-edit">History Transaction</div>
+          {transaction?.map((item) => ( 
           <div className="d-md-flex p-3 bg-white  border">
             <div className="justify-content-start">
-              <h5 className="history-title">Geprek Bensu</h5>
+              <h5 className="history-title">{item?.cart.order[0].product.user.name}</h5>
               <h5 className="history-day">
-                <span className="font-weight-bold">Saturday</span>, 12 March
-                2021
+                <span className="font-weight-bold">{milisToDate(item?.create_at)}</span>
               </h5>
-              <span className="history-ttl">Total : Rp 45.000</span>
+              <span className="history-ttl">Total : Rp {item?.subtotal}</span>
             </div>
             <div className="justify-content-end ml-5">
               <span className="waysfood">WaysFood</span>
@@ -86,9 +115,53 @@ function Profile() {
               </div>
             </div>
           </div>
+             ))} 
         </div>
+    
       </div>
+         </>}
+      
     </div>
   );
 }
 export default Profile;
+
+
+function milisToDate(milis) {
+  let date = new Date(milis);
+  let convertMonth = month => {
+    switch (month) {
+      case 0:
+        return 'Januari';
+      case 1:
+        return 'Februari';
+      case 2:
+        return 'Maret';
+      case 3:
+        return 'April';
+      case 4:
+        return 'Mei';
+      case 5:
+        return 'Juni';
+      case 6:
+        return 'Juli';
+      case 7:
+        return 'Agustus';
+      case 8:
+        return 'September';
+      case 9:
+        return 'Oktober';
+      case 10:
+        return 'November';
+      case 11:
+        return 'Desember';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  let dateNumber = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+
+  return `${dateNumber} ${convertMonth(date.getMonth())} ${date.getFullYear()}`;
+}
+
